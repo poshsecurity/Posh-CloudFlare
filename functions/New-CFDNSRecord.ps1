@@ -27,9 +27,6 @@ function New-CFDNSRecord
         .PARAMETER Type
         What type of record? Almost everything is supported here, including: A, CNAME, MX, TXT, SPF, AAAA, NS, SRV, LOC
 
-        .PARAMETER EnableCloudFlare
-        Status of CloudFlare Proxy, 1 = orange cloud, 0 = grey cloud. !!!! Currently doesn't function correctly !!! API accepts this, however ignores the setting.
-
         .PARAMETER TTL
         Time to live for this DNS record, defaults to 1 which is automatic.
 
@@ -124,14 +121,6 @@ function New-CFDNSRecord
     
         [Parameter(mandatory = $false)]
         [ValidateScript({
-                    ($Type -eq 'A') -or ($Type -eq 'AAAA') -or ($Type -eq 'CNAME')
-                }
-        )]
-        [switch]
-        $EnableCloudFlare,
-
-        [Parameter(mandatory = $false)]
-        [ValidateScript({
                     ($_ -eq 1) -or (($_ -ge 120) -and ($_ -le 86400))
                 }
         )]
@@ -215,22 +204,6 @@ function New-CFDNSRecord
         $APIParameters.Add('weight', $Weight)
         $APIParameters.Add('port', $Port)
         $APIParameters.Add('target', $Content)
-    }
-
-    #TODO - This seems to be acepted, but doesn't work
-    if (($Type -eq 'A') -or ($Type -eq 'AAAA') -or ($Type -eq 'CNAME'))
-    {
-        Write-Verbose -Message 'Determining service status'
-        if ($EnableCloudFlare)
-        {
-            Write-Verbose -Message 'enabling service'
-            $APIParameters.Add('service_mode', 1)
-        }
-        else
-        {
-            Write-Verbose -Message 'disabling service'
-            $APIParameters.Add('service_mode', 0)
-        }
     }
         
     # Create the webclient and set encoding to UTF8

@@ -35,7 +35,12 @@ function Set-CFDNSZoneMinification
 
         [Parameter(mandatory = $false)]
         [switch]
-        $HTML
+        $HTML,
+
+        [Parameter(mandatory = $false)]
+        [ValidateRange(0,7)]
+        [int]
+        $MinifyInteger
 
     )
 
@@ -49,24 +54,32 @@ function Set-CFDNSZoneMinification
     $APIParameters.Add('a', 'minify')
     $APIParameters.Add('z', $Zone)
 
-    $minify = 0
-
-    if ($JavaScript)
+    if ($MinifyInteger -ne $null)
     {
-        $minify = $minify + 1
-    } 
 
-    if ($CSS)
-    {
-        $minify = $minify + 2
-    } 
+        $minify = 0
 
-    if ($HTML)
-    {
-        $minify = $minify + 4
-    } 
+        if ($JavaScript)
+        {
+            $minify = $minify + 1
+        } 
+
+        if ($CSS)
+        {
+            $minify = $minify + 2
+        } 
+
+        if ($HTML)
+        {
+            $minify = $minify + 4
+        } 
     
-    $APIParameters.Add('v', $minify)
+        $APIParameters.Add('v', $minify)
+    }
+    else
+    {
+        $APIParameters.Add('v', $minifyinteger)
+    }
 
     # Create the webclient and set encoding to UTF8
     $webclient = New-Object  -TypeName Net.WebClient

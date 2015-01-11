@@ -38,7 +38,7 @@ function Set-CFDNSZoneSecurityLevel
     $APIParameters = New-Object  -TypeName System.Collections.Specialized.NameValueCollection
     $APIParameters.Add('tkn', $APIToken)
     $APIParameters.Add('email', $Email)
-    $APIParameters.Add('a', 'async')
+    $APIParameters.Add('a', 'sec_lvl')
     $APIParameters.Add('z', $Zone)
     $APIParameters.Add('v', $Level)
 

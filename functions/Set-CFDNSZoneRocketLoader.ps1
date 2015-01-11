@@ -26,7 +26,7 @@ function Set-CFDNSZoneRocketLoader
         $Zone,
 
         [Parameter(mandatory = $true)]
-        [ValidateSet('off', 'automatic', 'manual')]
+        [ValidateSet('off', 'automatic', 'manual', '0', 'a', 'm')]
         [string]
         $Level
     )
@@ -40,11 +40,11 @@ function Set-CFDNSZoneRocketLoader
     $APIParameters.Add('email', $Email)
     $APIParameters.Add('a', 'async')
     $APIParameters.Add('z', $Zone)
-    if ($Level -eq 'automatic')
+    if (($Level -eq 'automatic') -or ($Level -eq 'a'))
     {
         $APIParameters.Add('v', 'a')
     } 
-    elseif ($Level -eq 'manual')
+    elseif (($Level -eq 'manual') -or ($Level -eq 'm'))
     {
         $APIParameters.Add('v', 'm')
     } 

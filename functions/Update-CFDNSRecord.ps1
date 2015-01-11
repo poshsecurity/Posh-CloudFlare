@@ -21,6 +21,9 @@ function Update-CFDNSRecord
         .PARAMETER Name
         The record you want to add. For example, www.poshsecurity.com. Use '@' to specify the root of the domain.
 
+        .PARAMETER ID
+        Cloudflare ID for the record.
+
         .PARAMETER Content
         The content for the record, this would be an IP address for an A record, or another hostname for a CNAME, or Text for a TXT record. For MX or SRV this is your "target"
 
@@ -107,20 +110,25 @@ function Update-CFDNSRecord
         [string]
         $Zone,
 
-        [Parameter(mandatory = $true)]
+        [Parameter(mandatory = $false)]
         [ValidateNotNullOrEmpty()]
         [string]
         $ID,
 
-        [Parameter(mandatory = $false)]
+        [Parameter(mandatory = $true)]
         [ValidateNotNullOrEmpty()]
         [string]
         $Name,
 
-        [Parameter(mandatory = $false)]
+        [Parameter(mandatory = $true)]
         [ValidateNotNullOrEmpty()]
         [string]
         $Content,
+
+        [Parameter(mandatory = $true)]
+        [ValidateSet('A', 'CNAME', 'MX', 'TXT', 'SPF', 'AAAA', 'NS', 'SRV', 'LOC')]
+        [string]
+        $Type,
    
         [Parameter(mandatory = $false)]
         [switch]
@@ -174,20 +182,47 @@ function Update-CFDNSRecord
     $APIParameters.Add('email', $Email)
     $APIParameters.Add('a', 'rec_edit')
     $APIParameters.Add('z', $Zone)
+
+    if ($ID -ne '') 
+    {
+        Write-Verbose 'Deletion by ID'
+    }
+    else
+    {
+        Write-Verbose 'Deletion by Name and Type'
+        if ($Name -eq '@')
+        {
+            $Name -eq $Zone
+        }
+        $Record = Get-CFDNSRecord -APIToken $APIToken -Email $Email -Zone $Zone | Where-Object { ($_.display_name -eq $name) -and ($_.type -eq $Type)}
+        $ID = $Record.rec_id
+        Write-verbose $ID
+    }
+
+
     $APIParameters.Add('id', $ID)
     $APIParameters.Add('name', $Name)
     $APIParameters.Add('content', $Content)
+    $APIParameters.Add('type', $Type)
     $APIParameters.Add('ttl', $TTL)
-    $APIParameters.Add('type', 'CNAME')
     
-    #$APIParameters.Add('prio', $Priority)
+    if (($Type -eq 'SRV') -or ($Type -eq 'MX'))
+    {
+        Write-Verbose -Message 'Adding Priority'
+        $APIParameters.Add('prio', $Priority)
+    }
 
-    #$APIParameters.Add('service', $Service)
-    #$APIParameters.Add('srvname', $Name)
-    #$APIParameters.Add('protocol', $Protocol)
-    #$APIParameters.Add('weight', $Weight)
-    #$APIParameters.Add('port', $Port)
-    #$APIParameters.Add('target', $Content)
+    if ($Type -eq 'SRV')
+    {
+        Write-Verbose -Message 'Adding SRV specifics'
+        $APIParameters.Add('service', $Service)
+        $APIParameters.Add('srvname', $Name)
+        $APIParameters.Add('protocol', $Protocol)
+        $APIParameters.Add('weight', $Weight)
+        $APIParameters.Add('port', $Port)
+        $APIParameters.Add('target', $Content)
+    }
+
 
 
     Write-Verbose -Message 'Determining service status'

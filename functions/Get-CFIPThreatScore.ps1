@@ -64,6 +64,6 @@ function get-CFIPThreatScore
             throw $($JSONResult.msg)
         }
     
-        $JSONResult.response
+        $JSONResult
     }
 }
