@@ -120,6 +120,10 @@ Function Remove-CFDNSRecord
             $Name -eq $Zone
         }
         $Record = Get-CFDNSRecord -APIToken $APIToken -Email $Email -Zone $Zone | Where-Object { ($_.display_name -eq $name) -and ($_.type -eq $Type)}
+        if ($Record -eq $null)
+        {
+            throw "No record found"
+        }
         $ID = $Record.rec_id
         Write-verbose $ID
     }

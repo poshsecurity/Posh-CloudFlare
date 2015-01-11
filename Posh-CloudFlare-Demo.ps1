@@ -4,9 +4,9 @@ Import-Module .\Posh-CloudFlare.psd1
     Cloud Flare Client Details
 #>
 
-$CloudFlareAPIToken     = 'Your Token'
-$CloudFlareEmailAddress = 'Your Email'
-$CloudFlareDomain       = 'Domain to act as demo (not production)'
+$CloudFlareAPIToken     = 'Your Token Here'
+$CloudFlareEmailAddress = 'Your Email Here'
+$CloudFlareDomain       = 'Your Domain Here'
 $CloudFlareURL          = "http://$CloudFlareDomain"
 $IPAddress              = '1.1.1.1'
 
@@ -39,7 +39,7 @@ Set-CFDNSZoneSecurityLevel -APIToken $CloudFlareAPIToken -Email $CloudFlareEmail
 (get-CFDNSZoneSettings -APIToken $CloudFlareAPIToken -Email $CloudFlareEmailAddress -Zone $CloudFlareDomain).sec_lvl
 
 'Setting to medium'
-Set-CFDNSZoneSecurityLevel -APIToken $CloudFlareAPIToken -Email $CloudFlareEmailAddress -Zone $CloudFlareDomain -Level Med
+Set-CFDNSZoneSecurityLevel -APIToken $CloudFlareAPIToken -Email $CloudFlareEmailAddress -Zone $CloudFlareDomain -Level med
 
 'Getting Security Level'
 (get-CFDNSZoneSettings -APIToken $CloudFlareAPIToken -Email $CloudFlareEmailAddress -Zone $CloudFlareDomain).sec_lvl
@@ -105,7 +105,7 @@ Add-CFWhiteListIP -APIToken $CloudFlareAPIToken -Email $CloudFlareEmailAddress -
 Remove-CFListIP -APIToken $CloudFlareAPIToken -Email $CloudFlareEmailAddress -IP $IPAddress
 
 'Enable IPv6 Support - CloudFlare API: 4.7 - "ipv46"'
-Set-CFDNSZoneIPVersion -APIToken $CloudFlareAPIToken -Email $CloudFlareEmailAddress -IPV6
+Set-CFDNSZoneIPVersion -APIToken $CloudFlareAPIToken -Email $CloudFlareEmailAddress -Zone $CloudFlareDomain -IPV6
 
 'Enable Rocket Loader - CloudFlare API: 4.8 - "async"'
 $CurrentLevel = (get-CFDNSZoneSettings -APIToken $CloudFlareAPIToken -Email $CloudFlareEmailAddress -Zone $CloudFlareDomain).async
@@ -210,11 +210,14 @@ New-CFDNSRecord -APIToken $CloudFlareAPIToken -Email $CloudFlareEmailAddress -Zo
 
 'Test resolution'
 Resolve-DnsName -Name "arecord.demo.$CloudFlareDomain"
-Resolve-DnsName -Name "cname.demo.$CloudFlareDomain"
+Resolve-DnsName -Name "cnamerecord.demo.$CloudFlareDomain"
 Resolve-DnsName -Name "demo.$CloudFlareDomain" -Type MX
 
+'Get an updated list'
+get-CFDNSRecord -APIToken $CloudFlareAPIToken -Email $CloudFlareEmailAddress -Zone $CloudFlareDomain | Format-Table name, type, content
+
 'Update a record and enable CloudFlare services - CloudFlare API: 5.2 - "rec_edit"'
-Update-CFDNSRecord -APIToken $CloudFlareAPIToken -Email $CloudFlareEmailAddress -Zone $CloudFlareDomain -EnableCloudFlare -Name 'arecord.demo' -Content '1.1.1.1' -Type CNAME
+Update-CFDNSRecord -APIToken $CloudFlareAPIToken -Email $CloudFlareEmailAddress -Zone $CloudFlareDomain -EnableCloudFlare -Name 'arecord.demo' -Content '1.1.1.1' -Type A
 
 'Test resolution'
 Resolve-DnsName -Name "arecord.demo.$CloudFlareDomain"
@@ -231,7 +234,7 @@ get-CFDNSRecord -APIToken $CloudFlareAPIToken -Email $CloudFlareEmailAddress -Zo
 
 'Delete the records - CloudFlare API: 5.3 - "rec_delete"'
 Remove-CFDNSRecord -APIToken $CloudFlareAPIToken -Email $CloudFlareEmailAddress -Zone $CloudFlareDomain -Name 'arecord.demo' -Type A
-Remove-CFDNSRecord -APIToken $CloudFlareAPIToken -Email $CloudFlareEmailAddress -Zone $CloudFlareDomain -Name 'crecord.demo' -Type CNAME
+Remove-CFDNSRecord -APIToken $CloudFlareAPIToken -Email $CloudFlareEmailAddress -Zone $CloudFlareDomain -Name 'cnamerecord.demo' -Type CNAME
 Remove-CFDNSRecord -APIToken $CloudFlareAPIToken -Email $CloudFlareEmailAddress -Zone $CloudFlareDomain -Name 'demo' -Type MX
 
 'Get an updated list'
