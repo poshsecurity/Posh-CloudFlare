@@ -1,4 +1,4 @@
-﻿Set-StrictMode -Version 2
+Set-StrictMode -Version 2
 
 function Update-CFDNSRecord 
 {
@@ -169,7 +169,8 @@ function Update-CFDNSRecord
         #"port"[applies to SRV] Port for SRV record
         [Parameter(mandatory = $false)]
         [ValidateRange(1, [UInt16]::MaxValue)]
-        [UInt16]$Port
+        [UInt16]
+        $Port
 
     )
     
