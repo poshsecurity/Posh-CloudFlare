@@ -30,22 +30,13 @@ function Clear-CFDNSZoneCache
     $CloudFlareAPIURL = 'https://www.cloudflare.com/api_json.html'
 
     # Build up the request parameters
-    $APIParameters = New-Object  -TypeName System.Collections.Specialized.NameValueCollection
-    $APIParameters.Add('tkn', $APIToken)
-    $APIParameters.Add('email', $Email)
-    $APIParameters.Add('a', 'fpurge_ts')
-    $APIParameters.Add('z', $Zone)
-    $APIParameters.Add('v', 1) 
+    $APIParameters = @{'tkn'   = $APIToken
+                       'email' = $Email
+                       'a'     = 'fpurge_ts'
+                       'z'     = $Zone
+                       'v'     = 1}
 
-    # Create the webclient and set encoding to UTF8
-    $WebClient = New-Object  -TypeName Net.WebClient
-    $WebClient.Encoding = [System.Text.Encoding]::UTF8
-
-    # Post the API command
-    $WebRequest = $WebClient.UploadValues($CloudFlareAPIURL, 'POST', $APIParameters)
-
-    #convert the result from UTF8 and then convert from JSON
-    $JSONResult = ConvertFrom-Json -InputObject ([System.Text.Encoding]::UTF8.GetString($WebRequest))
+    $JSONResult = Invoke-RestMethod -Uri $CloudFlareAPIURL -Body $APIParameters -Method Post
     
     #if the cloud flare api has returned and is reporting an error, then throw an error up
     if ($JSONResult.result -eq 'error') 

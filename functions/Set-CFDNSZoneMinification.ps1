@@ -48,11 +48,10 @@ function Set-CFDNSZoneMinification
     $CloudFlareAPIURL = 'https://www.cloudflare.com/api_json.html'
 
     # Build up the request parameters
-    $APIParameters = New-Object  -TypeName System.Collections.Specialized.NameValueCollection
-    $APIParameters.Add('tkn', $APIToken)
-    $APIParameters.Add('email', $Email)
-    $APIParameters.Add('a', 'minify')
-    $APIParameters.Add('z', $Zone)
+    $APIParameters = @{'tkn'   = $APIToken
+                       'email' = $Email
+                       'a'     = 'minify'
+                       'z'     = $Zone}
 
     if ($MinifyInteger -ne $null)
     {
@@ -81,15 +80,7 @@ function Set-CFDNSZoneMinification
         $APIParameters.Add('v', $minifyinteger)
     }
 
-    # Create the webclient and set encoding to UTF8
-    $webclient = New-Object  -TypeName Net.WebClient
-    $webclient.Encoding = [System.Text.Encoding]::UTF8
-
-    # Post the API command
-    $WebRequest = $webclient.UploadValues($CloudFlareAPIURL, 'POST', $APIParameters)
-
-    #convert the result from UTF8 and then convert from JSON
-    $JSONResult = ConvertFrom-Json -InputObject ([System.Text.Encoding]::UTF8.GetString($WebRequest))
+    $JSONResult = Invoke-RestMethod -Uri $CloudFlareAPIURL -Body $APIParameters -Method Post
     
     #if the cloud flare api has returned and is reporting an error, then throw an error up
     if ($JSONResult.result -eq 'error') 

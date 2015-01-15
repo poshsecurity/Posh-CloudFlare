@@ -4,9 +4,10 @@ Import-Module .\Posh-CloudFlare.psd1
     Cloud Flare Client Details
 #>
 
-$CloudFlareAPIToken     = 'Your Token Here'
-$CloudFlareEmailAddress = 'Your Email Here'
-$CloudFlareDomain       = 'Your Domain Here'
+
+$CloudFlareAPIToken     = '52115e88049ac0f86385410d1e688910f6891'
+$CloudFlareEmailAddress = 'administrator@umbrellacorp.info'
+$CloudFlareDomain       = 'thekgb.su'
 $CloudFlareURL          = "http://$CloudFlareDomain"
 $IPAddress              = '1.1.1.1'
 

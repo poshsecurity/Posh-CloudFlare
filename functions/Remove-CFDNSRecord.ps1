@@ -102,11 +102,10 @@ Function Remove-CFDNSRecord
     $CloudFlareAPIURL = 'https://www.cloudflare.com/api_json.html'
 
     # Build up the request parameters, we need API Token, email, command, dnz zone, and the record id to delete
-    $APIParameters = New-Object  -TypeName System.Collections.Specialized.NameValueCollection
-    $APIParameters.Add('tkn', $APIToken)
-    $APIParameters.Add('email', $Email)
-    $APIParameters.Add('a', 'rec_delete')
-    $APIParameters.Add('z', $Zone)
+    $APIParameters = @{'tkn'   = $APIToken
+                       'email' = $Email
+                       'a'     = 'rec_delete'
+                       'z'     = $Zone}
 
     if ($ID -ne '') 
     {
@@ -122,7 +121,7 @@ Function Remove-CFDNSRecord
         $Record = Get-CFDNSRecord -APIToken $APIToken -Email $Email -Zone $Zone | Where-Object { ($_.display_name -eq $name) -and ($_.type -eq $Type)}
         if ($Record -eq $null)
         {
-            throw "No record found"
+            throw 'No record found'
         }
         $ID = $Record.rec_id
         Write-verbose $ID
@@ -130,15 +129,7 @@ Function Remove-CFDNSRecord
 
     $APIParameters.Add('id', $ID)
 
-    # Create the webclient and set encoding to UTF8
-    $webclient = New-Object  -TypeName Net.WebClient
-    $webclient.Encoding = [System.Text.Encoding]::UTF8
-
-    # Post the API command
-    $WebRequest = $webclient.UploadValues($CloudFlareAPIURL, 'POST', $APIParameters)
-
-    #convert the result from UTF8 and then convert from JSON
-    $JSONResult = ConvertFrom-Json -InputObject ([System.Text.Encoding]::UTF8.GetString($WebRequest))
+    $JSONResult = Invoke-RestMethod -Uri $CloudFlareAPIURL -Body $APIParameters -Method Post
     
     #if the cloud flare api has returned and is reporting an error, then throw an error up
     if ($JSONResult.result -eq 'error') 
