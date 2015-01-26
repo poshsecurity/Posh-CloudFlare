@@ -110,32 +110,45 @@ Function Remove-CFDNSRecord
     if ($ID -ne '') 
     {
         Write-Verbose 'Deletion by ID'
+        $APIParameters.Add('id', $ID)
+        
+        $JSONResult = Invoke-RestMethod -Uri $CloudFlareAPIURL -Body $APIParameters -Method Post
+    
+        #if the cloud flare api has returned and is reporting an error, then throw an error up
+        if ($JSONResult.result -eq 'error') 
+        {
+            throw $($JSONResult.msg)
+        }
+
+        $JSONResult.result
     }
     else
     {
         Write-Verbose 'Deletion by Name and Type'
+        $APIParameters.Add('id', '0')
+        
         if ($Name -eq '@')
         {
             $Name -eq $Zone
         }
+        
         $Record = Get-CFDNSRecord -APIToken $APIToken -Email $Email -Zone $Zone | Where-Object { ($_.display_name -eq $name) -and ($_.type -eq $Type)}
         if ($Record -eq $null)
         {
             throw 'No record found'
         }
-        $ID = $Record.rec_id
-        Write-verbose $ID
-    }
-
-    $APIParameters.Add('id', $ID)
-
-    $JSONResult = Invoke-RestMethod -Uri $CloudFlareAPIURL -Body $APIParameters -Method Post
+        
+        foreach ($Rec in $Record)
+        {
+            $APIParameters['id'] = $rec.rec_id
+            $JSONResult = Invoke-RestMethod -Uri $CloudFlareAPIURL -Body $APIParameters -Method Post
     
-    #if the cloud flare api has returned and is reporting an error, then throw an error up
-    if ($JSONResult.result -eq 'error') 
-    {
-        throw $($JSONResult.msg)
+            #if the cloud flare api has returned and is reporting an error, then throw an error up
+            if ($JSONResult.result -eq 'error') 
+            {
+                throw $($JSONResult.msg)
+            }
+            $JSONResult.result
+        }    
     }
-
-    $JSONResult.result
 }
