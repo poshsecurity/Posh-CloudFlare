@@ -1,4 +1,4 @@
-Import-Module .\Posh-CloudFlare.psd1
+Import-Module -Name .\Posh-CloudFlare.psd1
 
 <#
     Cloud Flare Client Details
@@ -15,7 +15,7 @@ $IPAddress              = '1.1.1.1'
 'You can find more information about each command here: https://www.cloudflare.com/docs/client-api.html, section numbers through this refer to section numbers on that page'
 
 'Your CloudFlare Zones - Cloudflare API: 3.2 - "zone_load_multi"'
-get-CFDNSZone -APIToken $CloudFlareAPIToken -Email $CloudFlareEmailAddress | Format-Table zone_name
+get-CFDNSZone -APIToken $CloudFlareAPIToken -Email $CloudFlareEmailAddress | Format-Table -Property zone_name
 
 'Show the settings for the specified domain - Cloudflare API: 3.7 "zone_settings"'
 get-CFDNSZoneSettings -APIToken $CloudFlareAPIToken -Email $CloudFlareEmailAddress -Zone $CloudFlareDomain
@@ -202,7 +202,7 @@ else
 (get-CFDNSZoneSettings -APIToken $CloudFlareAPIToken -Email $CloudFlareEmailAddress -Zone $CloudFlareDomain).mirage2 -eq 1
 
 'Getting a Record List - CloudFlare API: 3.3 - "rec_load_all"'
-get-CFDNSRecord -APIToken $CloudFlareAPIToken -Email $CloudFlareEmailAddress -Zone $CloudFlareDomain | Format-Table name, type, content
+get-CFDNSRecord -APIToken $CloudFlareAPIToken -Email $CloudFlareEmailAddress -Zone $CloudFlareDomain | Format-Table -Property name, type, content
 
 'Add some records - CloudFlare API: 5.1 - "rec_new"'
 New-CFDNSRecord -APIToken $CloudFlareAPIToken -Email $CloudFlareEmailAddress -Zone $CloudFlareDomain -Name 'arecord.demo' -Content '1.1.1.1' -Type A
@@ -215,7 +215,7 @@ Resolve-DnsName -Name "cnamerecord.demo.$CloudFlareDomain"
 Resolve-DnsName -Name "demo.$CloudFlareDomain" -Type MX
 
 'Get an updated list'
-get-CFDNSRecord -APIToken $CloudFlareAPIToken -Email $CloudFlareEmailAddress -Zone $CloudFlareDomain | Format-Table name, type, content
+get-CFDNSRecord -APIToken $CloudFlareAPIToken -Email $CloudFlareEmailAddress -Zone $CloudFlareDomain | Format-Table -Property name, type, content
 
 'Update a record and enable CloudFlare services - CloudFlare API: 5.2 - "rec_edit"'
 Update-CFDNSRecord -APIToken $CloudFlareAPIToken -Email $CloudFlareEmailAddress -Zone $CloudFlareDomain -EnableCloudFlare -Name 'arecord.demo' -Content '1.1.1.1' -Type A
@@ -231,7 +231,7 @@ Resolve-DnsName -Name "demo.$CloudFlareDomain" -Type MX
 
 
 'Get an updated list'
-get-CFDNSRecord -APIToken $CloudFlareAPIToken -Email $CloudFlareEmailAddress -Zone $CloudFlareDomain | Format-Table name, type, content
+get-CFDNSRecord -APIToken $CloudFlareAPIToken -Email $CloudFlareEmailAddress -Zone $CloudFlareDomain | Format-Table -Property name, type, content
 
 'Delete the records - CloudFlare API: 5.3 - "rec_delete"'
 Remove-CFDNSRecord -APIToken $CloudFlareAPIToken -Email $CloudFlareEmailAddress -Zone $CloudFlareDomain -Name 'arecord.demo' -Type A
@@ -239,7 +239,7 @@ Remove-CFDNSRecord -APIToken $CloudFlareAPIToken -Email $CloudFlareEmailAddress 
 Remove-CFDNSRecord -APIToken $CloudFlareAPIToken -Email $CloudFlareEmailAddress -Zone $CloudFlareDomain -Name 'demo' -Type MX
 
 'Get an updated list'
-get-CFDNSRecord -APIToken $CloudFlareAPIToken -Email $CloudFlareEmailAddress -Zone $CloudFlareDomain | Format-Table name, type, content
+get-CFDNSRecord -APIToken $CloudFlareAPIToken -Email $CloudFlareEmailAddress -Zone $CloudFlareDomain | Format-Table -Property name, type, content
 
 
 'Demo complete'

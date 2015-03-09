@@ -12,10 +12,7 @@ function Set-CFDNSZoneMirage2
         $APIToken,
 
         [Parameter(mandatory = $true)]
-        [ValidateScript({
-                    $_.contains('@')
-                }
-        )]
+        [ValidateScript({$_.contains('@')})]
         [ValidateNotNullOrEmpty()]
         [string]
         $Email,
@@ -35,27 +32,23 @@ function Set-CFDNSZoneMirage2
     $CloudFlareAPIURL = 'https://www.cloudflare.com/api_json.html'
 
     # Build up the request parameters
-    $APIParameters = @{'tkn'   = $APIToken
-                       'email' = $Email
-                       'a'     = 'mirage2'
-                       'z'     = $Zone}
+    $APIParameters = @{
+        'tkn'   = $APIToken
+        'email' = $Email
+        'a'     = 'mirage2'
+        'z'     = $Zone
+    }
     
     if ($Enable)   
-    {
-        $APIParameters.Add('v', '1')
-    }
+    {$APIParameters.Add('v', '1')}
     else
-    {
-        $APIParameters.Add('v', '0')
-    }
+    {$APIParameters.Add('v', '0')}
 
     $JSONResult = Invoke-RestMethod -Uri $CloudFlareAPIURL -Body $APIParameters -Method Post
     
     #if the cloud flare api has returned and is reporting an error, then throw an error up
     if ($JSONResult.result -eq 'error') 
-    {
-        throw $($JSONResult.msg)
-    }
+    {throw $($JSONResult.msg)}
     
     $JSONResult.result
 }

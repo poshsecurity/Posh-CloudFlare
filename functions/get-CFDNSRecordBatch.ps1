@@ -60,10 +60,7 @@ function get-CFDNSRecordBatch
         $APIToken,
 
         [Parameter(mandatory = $true)]
-        [ValidateScript({
-                    $_.contains('@')
-                }
-        )]
+        [ValidateScript({$_.contains('@')} )]
         [string]
         $Email,
 
@@ -81,19 +78,19 @@ function get-CFDNSRecordBatch
     $CloudFlareAPIURL = 'https://www.cloudflare.com/api_json.html'
 
     # Build up the request parameters, we need API Token, email, command, dnz zone, dns record type, dns record name and content, and finally the TTL.
-    $APIParameters = @{'tkn'   = $APIToken
-                       'email' = $Email
-                       'a'     = 'rec_load_all'
-                       'z'     = $Zone
-                       'o'     = $Offset}
+    $APIParameters = @{
+        'tkn'   = $APIToken
+        'email' = $Email
+        'a'     = 'rec_load_all'
+        'z'     = $Zone
+        'o'     = $Offset
+    }
 
     $JSONResult = Invoke-RestMethod -Uri $CloudFlareAPIURL -Body $APIParameters -Method Post
     
     #if the cloud flare api has returned and is reporting an error, then throw an error up
     if ($JSONResult.result -eq 'error') 
-    {
-        throw $($JSONResult.msg)
-    }
+    {throw $($JSONResult.msg)}
     
     $JSONResult
 }

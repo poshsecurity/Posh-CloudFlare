@@ -52,10 +52,7 @@ function get-CFDNSRecord
         $APIToken,
 
         [Parameter(mandatory = $true)]
-        [ValidateScript({
-                    $_.contains('@')
-                }
-        )]
+        [ValidateScript({$_.contains('@')})]
         [string]
         $Email,
 
@@ -88,13 +85,9 @@ function get-CFDNSRecord
 
         #Do we have any more results (if this errors, we don't)
         try 
-        {
-            $hasmore = $results.response.recs.has_more
-        } 
+        {$hasmore = $results.response.recs.has_more} 
         catch 
-        {
-            $hasmore = $false
-        }
+        {$hasmore = $false}
 
         Write-Verbose  -Message "There are more records $hasmore, offset is $Offset"
     }

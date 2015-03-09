@@ -12,10 +12,7 @@ function get-CFDNSZoneSettings
         $APIToken,
 
         [Parameter(mandatory = $true)]
-        [ValidateScript({
-                    $_.contains('@')
-                }
-        )]
+        [ValidateScript({$_.contains('@')})]
         [ValidateNotNullOrEmpty()]
         [string]
         $Email,
@@ -30,18 +27,18 @@ function get-CFDNSZoneSettings
     $CloudFlareAPIURL = 'https://www.cloudflare.com/api_json.html'
 
     # Build up the request parameters
-    $APIParameters = @{'tkn'   = $APIToken
-                       'email' = $Email
-                       'a'     = 'zone_settings'
-                       'z'     = $Zone}
+    $APIParameters = @{
+        'tkn'   = $APIToken
+        'email' = $Email
+        'a'     = 'zone_settings'
+        'z'     = $Zone
+    }
 
     $JSONResult = Invoke-RestMethod -Uri $CloudFlareAPIURL -Body $APIParameters -Method Post
     
     # if the cloud flare api has returned and is reporting an error, then throw an error up
     if ($JSONResult.result -eq 'error') 
-    {
-        throw $($JSONResult.msg)
-    }
+    {throw $($JSONResult.msg)}
     
     $JSONResult.response.result.objs
 }

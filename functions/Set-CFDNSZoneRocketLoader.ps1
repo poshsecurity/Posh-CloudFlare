@@ -12,10 +12,7 @@ function Set-CFDNSZoneRocketLoader
         $APIToken,
 
         [Parameter(mandatory = $true)]
-        [ValidateScript({
-                    $_.contains('@')
-                }
-        )]
+        [ValidateScript({$_.contains('@')})]
         [ValidateNotNullOrEmpty()]
         [string]
         $Email,
@@ -35,31 +32,25 @@ function Set-CFDNSZoneRocketLoader
     $CloudFlareAPIURL = 'https://www.cloudflare.com/api_json.html'
 
     # Build up the request parameters
-    $APIParameters = @{'tkn'   = $APIToken
-                       'email' = $Email
-                       'a'     = 'async'
-                       'z'     = $Zone}
+    $APIParameters = @{
+        'tkn'   = $APIToken
+        'email' = $Email
+        'a'     = 'async'
+        'z'     = $Zone
+    }
 
     if (($Level -eq 'automatic') -or ($Level -eq 'a'))
-    {
-        $APIParameters.Add('v', 'a')
-    } 
+    {$APIParameters.Add('v', 'a')} 
     elseif (($Level -eq 'manual') -or ($Level -eq 'm'))
-    {
-        $APIParameters.Add('v', 'm')
-    } 
+    {$APIParameters.Add('v', 'm')} 
     else 
-    {
-        $APIParameters.Add('v', '0')
-    }
+    {$APIParameters.Add('v', '0')}
 
     $JSONResult = Invoke-RestMethod -Uri $CloudFlareAPIURL -Body $APIParameters -Method Post
     
     #if the cloud flare api has returned and is reporting an error, then throw an error up
     if ($JSONResult.result -eq 'error') 
-    {
-        throw $($JSONResult.msg)
-    }
+    {throw $($JSONResult.msg)}
     
     $JSONResult.result
 }

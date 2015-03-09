@@ -48,20 +48,16 @@ function Add-CFBlackListIP
         $APIToken,
 
         [Parameter(mandatory = $true)]
-        [ValidateScript({
-                    $_.contains('@')
-                }
+        [ValidateScript({$_.contains('@')}
         )]
         [ValidateNotNullOrEmpty()]
         [string]
         $Email,
     
         [Parameter(mandatory = $true,
-                   valuefrompipeline = $true
+                valuefrompipeline = $true
         )]
-        [ValidateScript({
-                    $_ -match [IPAddress]$_ 
-                }
+        [ValidateScript({$_ -match [IPAddress]$_}
         )]
         [string]
         $IP
@@ -73,10 +69,12 @@ function Add-CFBlackListIP
         $CloudFlareAPIURL = 'https://www.cloudflare.com/api_json.html'
 
         # Build up the request parameters
-        $APIParameters = @{'tkn'   = $APIToken
-                           'email' = $Email
-                           'a'     = 'ban'
-                           'key'    =  ''}
+        $APIParameters = @{
+            'tkn'   = $APIToken
+            'email' = $Email
+            'a'     = 'ban'
+            'key'   = ''
+        }
     }
 
     Process
@@ -88,9 +86,7 @@ function Add-CFBlackListIP
 
         #if the cloud flare api has returned and is reporting an error, then throw an error up
         if ($JSONResult.result -eq 'error') 
-        {
-            throw $($JSONResult.msg)
-        }
+        {throw $($JSONResult.msg)}
     
         $JSONResult.response
     }

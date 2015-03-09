@@ -12,10 +12,7 @@ function Set-CFDNSZoneMinification
         $APIToken,
 
         [Parameter(mandatory = $true)]
-        [ValidateScript({
-                    $_.contains('@')
-                }
-        )]
+        [ValidateScript({$_.contains('@')})]
         [ValidateNotNullOrEmpty()]
         [string]
         $Email,
@@ -48,45 +45,36 @@ function Set-CFDNSZoneMinification
     $CloudFlareAPIURL = 'https://www.cloudflare.com/api_json.html'
 
     # Build up the request parameters
-    $APIParameters = @{'tkn'   = $APIToken
-                       'email' = $Email
-                       'a'     = 'minify'
-                       'z'     = $Zone}
+    $APIParameters = @{
+        'tkn'   = $APIToken
+        'email' = $Email
+        'a'     = 'minify'
+        'z'     = $Zone
+    }
 
     if ($MinifyInteger -ne $null)
     {
-
         $minify = 0
 
         if ($JavaScript)
-        {
-            $minify = $minify + 1
-        } 
+        {$minify = $minify + 1} 
 
         if ($CSS)
-        {
-            $minify = $minify + 2
-        } 
+        {$minify = $minify + 2} 
 
         if ($HTML)
-        {
-            $minify = $minify + 4
-        } 
+        {$minify = $minify + 4} 
     
         $APIParameters.Add('v', $minify)
     }
     else
-    {
-        $APIParameters.Add('v', $minifyinteger)
-    }
+    {$APIParameters.Add('v', $MinifyInteger)}
 
     $JSONResult = Invoke-RestMethod -Uri $CloudFlareAPIURL -Body $APIParameters -Method Post
     
     #if the cloud flare api has returned and is reporting an error, then throw an error up
     if ($JSONResult.result -eq 'error') 
-    {
-        throw $($JSONResult.msg)
-    }
+    {throw $($JSONResult.msg)}
     
     $JSONResult.result
 }
