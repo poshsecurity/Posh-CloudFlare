@@ -7,7 +7,7 @@ function New-CFDNSRecord
         Creates specificed DNS entry in CloudFlare.
 
         .DESCRIPTION
-        Creates the specified DNS Record within the specified DNZ Zone that is hosted within CloudFlare's infrastructure. You must specify your API Token and your Email addresses along with the Zone (full qualified).
+        Creates the specified DNS Record within the specified DNS Zone that is hosted within CloudFlare's infrastructure. You must specify your API Token and your Email addresses along with the Zone (full qualified).
 
         .PARAMETER APIToken
         This is your API Token from the CloudFlare WebPage (look under user settings).
@@ -82,44 +82,57 @@ function New-CFDNSRecord
     #>
 
     [OutputType([PSCustomObject])]
-    [CMDLetBinding()]
+    [CMDLetBinding(DefaultParameterSetName = 'DEF')]
     param
-    (
-        [Parameter(mandatory = $true)]
+    (       
+        [Parameter(mandatory = $True, ValueFromPipelineByPropertyName = $true, ParameterSetName='DEF')]
+        [Parameter(mandatory = $True, ValueFromPipelineByPropertyName = $true, ParameterSetName='SRV')]
+        [Parameter(mandatory = $True, ValueFromPipelineByPropertyName = $true, ParameterSetName='MX')]
         [ValidateNotNullOrEmpty()]
         [string]
         $APIToken,
 
-        [Parameter(mandatory = $true)]
-        [ValidateScript({
-                    $_.contains('@')
-                }
-        )]
+        [Parameter(mandatory = $True, ValueFromPipelineByPropertyName = $true, ParameterSetName='DEF')]
+        [Parameter(mandatory = $True, ValueFromPipelineByPropertyName = $true, ParameterSetName='SRV')]
+        [Parameter(mandatory = $True, ValueFromPipelineByPropertyName = $true, ParameterSetName='MX')]
+        #[ValidateScript({$_.contains('@')})]
+        [ValidatePattern("[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?")]
         [ValidateNotNullOrEmpty()]
         [string]
         $Email,
 
-        [Parameter(mandatory = $true)]
+        [Parameter(mandatory = $True, ValueFromPipelineByPropertyName = $true, ParameterSetName='DEF')]
+        [Parameter(mandatory = $True, ValueFromPipelineByPropertyName = $true, ParameterSetName='SRV')]
+        [Parameter(mandatory = $True, ValueFromPipelineByPropertyName = $true, ParameterSetName='MX')]
         [ValidateNotNullOrEmpty()]
         [string]
         $Zone,
 
-        [Parameter(mandatory = $true)]
+        [Parameter(mandatory = $True, ValueFromPipelineByPropertyName = $true, ParameterSetName='DEF')]
+        [Parameter(mandatory = $True, ValueFromPipelineByPropertyName = $true, ParameterSetName='SRV')]
+        [Parameter(mandatory = $True, ValueFromPipelineByPropertyName = $true, ParameterSetName='MX')]
         [ValidateNotNullOrEmpty()]
         [string]
         $Name,
 
-        [Parameter(mandatory = $true)]
+        [Parameter(mandatory = $True, ValueFromPipelineByPropertyName = $true, ParameterSetName='DEF')]
+        [Parameter(mandatory = $True, ValueFromPipelineByPropertyName = $true, ParameterSetName='SRV')]
+        [Parameter(mandatory = $True, ValueFromPipelineByPropertyName = $true, ParameterSetName='MX')]
+        [Alias('Target')]
         [ValidateNotNullOrEmpty()]
         [string]
         $Content,
 
-        [Parameter(mandatory = $true)]
+        [Parameter(mandatory = $True, ValueFromPipelineByPropertyName = $true, ParameterSetName='DEF')]
+        [Parameter(mandatory = $True, ValueFromPipelineByPropertyName = $true, ParameterSetName='SRV')]
+        [Parameter(mandatory = $True, ValueFromPipelineByPropertyName = $true, ParameterSetName='MX')]
         [ValidateSet('A', 'CNAME', 'MX', 'TXT', 'SPF', 'AAAA', 'NS', 'SRV', 'LOC')]
         [string]
         $Type,
     
-        [Parameter(mandatory = $false)]
+        [Parameter(mandatory = $False, ValueFromPipelineByPropertyName = $true, ParameterSetName='DEF')]
+        [Parameter(mandatory = $False, ValueFromPipelineByPropertyName = $true, ParameterSetName='SRV')]
+        [Parameter(mandatory = $False, ValueFromPipelineByPropertyName = $true, ParameterSetName='MX')]
         [ValidateScript({
                     ($_ -eq 1) -or (($_ -ge 120) -and ($_ -le 86400))
                 }
@@ -128,91 +141,79 @@ function New-CFDNSRecord
         [int]
         $TTL = 1,
         
-        [Parameter(mandatory = $false)]
-        [ValidateScript({
-                    ($Type -eq 'SRV') -or ($Type -eq 'MX')
-                }
-        )]
-        [ValidateNotNullOrEmpty()]
-        [string]
-        $Priority,
 
-        [Parameter(mandatory = $false)]
-        [ValidateScript({
-                    ($Type -eq 'SRV')
-                }
-        )]
+        [Parameter(mandatory = $True, ValueFromPipelineByPropertyName = $true, ParameterSetName='SRV')]
         [ValidateNotNullOrEmpty()]
         [string]
         $Service,
 
-        [Parameter(mandatory = $false)]
-        [ValidateScript({
-                    ($Type -eq 'SRV')
-                }
-        )]
+        [Parameter(mandatory = $True, ValueFromPipelineByPropertyName = $true, ParameterSetName='SRV')]
         [ValidateSet('_tcp', '_udp', '_tls')]
         [string]
         $Protocol,
 
-        [Parameter(mandatory = $false)]
-        [ValidateScript({
-                    ($Type -eq 'SRV')
-                }
-        )]
+        [Parameter(mandatory = $True, ValueFromPipelineByPropertyName = $true, ParameterSetName='SRV')]
+        [Parameter(mandatory = $True, ValueFromPipelineByPropertyName = $true, ParameterSetName='MX')]
+        [ValidateNotNullOrEmpty()]
+        [string]
+        $Priority,
+        
+        [Parameter(mandatory = $True, ValueFromPipelineByPropertyName = $true, ParameterSetName='SRV')]
         [ValidateNotNullOrEmpty()]
         [string]
         $Weight,
 
-        [Parameter(mandatory = $false)]
-        [ValidateScript({
-                    ($Type -eq 'SRV')
-                }
-        )]
+        [Parameter(mandatory = $True, ValueFromPipelineByPropertyName = $true, ParameterSetName='SRV')]
         [ValidateRange(1, [UInt16]::MaxValue)]
         [UInt16]$Port
 
     )
     
-    # Cloudflare API URI
-    $CloudFlareAPIURL = 'https://www.cloudflare.com/api_json.html'
+    Begin
+    {
+        # Cloudflare API URI
+        $CloudFlareAPIURL = 'https://www.cloudflare.com/api_json.html'
+    }
 
-    # Build up the request parameters, we need API Token, email, command, dnz zone, dns record type, dns record name and content, and finally the TTL.
-    $APIParameters = @{'tkn'     = $APIToken
-                       'email'   = $Email
-                       'a'       = 'rec_new'
-                       'z'       = $Zone
-                       'type'    = $Type
-                       'name'    = $Name
-                       'content' = $Content
-                       'ttl'     = $TTL}
+    Process
+    {
+        # Build up the request parameters, we need API Token, email, command, dnz zone, dns record type, dns record name and content, and finally the TTL.
+        $APIParameters = @{'tkn'     = $APIToken
+                           'email'   = $Email
+                           'a'       = 'rec_new'
+                           'z'       = $Zone
+                           'type'    = $Type
+                           'name'    = $Name
+                           'content' = $Content
+                           'ttl'     = $TTL}
 
     
-    if (($Type -eq 'SRV') -or ($Type -eq 'MX'))
-    {
-        Write-Verbose -Message 'Adding Priority'
-        $APIParameters.Add('prio', $Priority)
-    }
+        if (($Type -eq 'SRV') -or ($Type -eq 'MX'))
+        {
+            Write-Verbose -Message 'Adding Priority'
+            $APIParameters.Add('prio', $Priority)
+        }
 
-    if ($Type -eq 'SRV')
-    {
-        Write-Verbose -Message 'Adding SRV specifics'
-        $APIParameters.Add('service', $Service)
-        $APIParameters.Add('srvname', $Name)
-        $APIParameters.Add('protocol', $Protocol)
-        $APIParameters.Add('weight', $Weight)
-        $APIParameters.Add('port', $Port)
-        $APIParameters.Add('target', $Content)
-    }
+        if ($Type -eq 'SRV')
+        {
+            Write-Verbose -Message 'Adding SRV specifics'
+            $APIParameters.Add('service', $Service)
+            $APIParameters.Add('srvname', $Name)
+            $APIParameters.Add('protocol', $Protocol)
+            $APIParameters.Add('weight', $Weight)
+            $APIParameters.Add('port', $Port)
+            $APIParameters.Add('target', $Content)
+        }
         
-    $JSONResult = Invoke-RestMethod -Uri $CloudFlareAPIURL -Body $APIParameters -Method Post
+        $JSONResult = Invoke-RestMethod -Uri $CloudFlareAPIURL -Body $APIParameters -Method Post
     
-    #if the cloud flare api has returned and is reporting an error, then throw an error up
-    if ($JSONResult.result -eq 'error') 
-    {
-        throw $($JSONResult.msg)
-    }
+        #if the cloud flare api has returned and is reporting an error, then throw an error up
+        if ($JSONResult.result -eq 'error') 
+        {
+            throw $($JSONResult.msg)
+        }
 
-    #return the record object from JSON response
-    $JSONResult.response.rec.obj
+        #return the record object from JSON response
+        $JSONResult.response.rec.obj
+    }
 }
