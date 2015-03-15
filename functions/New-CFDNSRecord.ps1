@@ -82,58 +82,43 @@ function New-CFDNSRecord
     #>
 
     [OutputType([PSCustomObject])]
-    [CMDLetBinding(DefaultParameterSetName = 'DEF')]
+    [CMDLetBinding(DefaultParameterSetName = 'Default')]
     param
     (       
-        [Parameter(mandatory = $True, ValueFromPipelineByPropertyName = $True, ParameterSetName = 'DEF')]
-        [Parameter(mandatory = $True, ValueFromPipelineByPropertyName = $True, ParameterSetName = 'SRV')]
-        [Parameter(mandatory = $True, ValueFromPipelineByPropertyName = $True, ParameterSetName = 'MX')]
+        [Parameter(mandatory = $True, ValueFromPipelineByPropertyName = $True)]
         [ValidateNotNullOrEmpty()]
         [string]
         $APIToken,
 
-        [Parameter(mandatory = $True, ValueFromPipelineByPropertyName = $True, ParameterSetName = 'DEF')]
-        [Parameter(mandatory = $True, ValueFromPipelineByPropertyName = $True, ParameterSetName = 'SRV')]
-        [Parameter(mandatory = $True, ValueFromPipelineByPropertyName = $True, ParameterSetName = 'MX')]
+        [Parameter(mandatory = $True, ValueFromPipelineByPropertyName = $True)]
         [ValidatePattern("[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?")]
         [ValidateNotNullOrEmpty()]
         [string]
         $Email,
 
-        [Parameter(mandatory = $True, ValueFromPipelineByPropertyName = $True, ParameterSetName = 'DEF')]
-        [Parameter(mandatory = $True, ValueFromPipelineByPropertyName = $True, ParameterSetName = 'SRV')]
-        [Parameter(mandatory = $True, ValueFromPipelineByPropertyName = $True, ParameterSetName = 'MX')]
+        [Parameter(mandatory = $True, ValueFromPipelineByPropertyName = $True)]
         [ValidateNotNullOrEmpty()]
         [string]
         $Zone,
 
-        [Parameter(mandatory = $True, ValueFromPipelineByPropertyName = $True, ParameterSetName = 'DEF')]
-        [Parameter(mandatory = $True, ValueFromPipelineByPropertyName = $True, ParameterSetName = 'SRV')]
-        [Parameter(mandatory = $True, ValueFromPipelineByPropertyName = $True, ParameterSetName = 'MX')]
+        [Parameter(mandatory = $True, ValueFromPipelineByPropertyName = $True)]
         [ValidateNotNullOrEmpty()]
         [string]
         $Name,
 
-        [Parameter(mandatory = $True, ValueFromPipelineByPropertyName = $True, ParameterSetName = 'DEF')]
-        [Parameter(mandatory = $True, ValueFromPipelineByPropertyName = $True, ParameterSetName = 'SRV')]
-        [Parameter(mandatory = $True, ValueFromPipelineByPropertyName = $True, ParameterSetName = 'MX')]
+        [Parameter(mandatory = $True, ValueFromPipelineByPropertyName = $True)]
         [Alias('Target')]
         [ValidateNotNullOrEmpty()]
         [string]
         $Content,
 
-        [Parameter(mandatory = $True, ValueFromPipelineByPropertyName = $True, ParameterSetName = 'DEF')]
-        [Parameter(mandatory = $True, ValueFromPipelineByPropertyName = $True, ParameterSetName = 'SRV')]
-        [Parameter(mandatory = $True, ValueFromPipelineByPropertyName = $True, ParameterSetName = 'MX')]
+        [Parameter(mandatory = $True, ValueFromPipelineByPropertyName = $True)]
         [ValidateSet('A', 'CNAME', 'MX', 'TXT', 'SPF', 'AAAA', 'NS', 'SRV', 'LOC')]
         [string]
         $Type,
     
-        [Parameter(mandatory = $False, ValueFromPipelineByPropertyName = $True, ParameterSetName = 'DEF')]
-        [Parameter(mandatory = $False, ValueFromPipelineByPropertyName = $True, ParameterSetName = 'SRV')]
-        [Parameter(mandatory = $False, ValueFromPipelineByPropertyName = $True, ParameterSetName = 'MX')]
-        [ValidateScript({($_ -eq 1) -or (($_ -ge 120) -and ($_ -le 86400))}
-        )]
+        [Parameter(mandatory = $False, ValueFromPipelineByPropertyName = $True)]
+        [ValidateScript({($_ -eq 1) -or (($_ -ge 120) -and ($_ -le 86400))})]
         [ValidateNotNullOrEmpty()]
         [int]
         $TTL = 1,
@@ -204,6 +189,9 @@ function New-CFDNSRecord
             $APIParameters.Add('target', $Content)
         }
         
+        Write-Verbose $APIParameters.keys
+        Write-Verbose $APIParameters.values
+
         $JSONResult = Invoke-RestMethod -Uri $CloudFlareAPIURL -Body $APIParameters -Method Post
     
         #if the cloud flare api has returned and is reporting an error, then throw an error up
