@@ -188,9 +188,6 @@ function New-CFDNSRecord
             $APIParameters.Add('port', $Port)
             $APIParameters.Add('target', $Content)
         }
-        
-        Write-Verbose $APIParameters.keys
-        Write-Verbose $APIParameters.values
 
         $JSONResult = Invoke-RestMethod -Uri $CloudFlareAPIURL -Body $APIParameters -Method Post
     
