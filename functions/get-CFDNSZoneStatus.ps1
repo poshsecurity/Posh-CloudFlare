@@ -12,8 +12,7 @@ function get-CFDNSZoneStatus
         $APIToken,
 
         [Parameter(mandatory = $true)]
-        [ValidateScript({$_.contains('@')})]
-        [ValidateNotNullOrEmpty()]
+        [ValidatePattern("[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?")]
         [string]
         $Email,
 

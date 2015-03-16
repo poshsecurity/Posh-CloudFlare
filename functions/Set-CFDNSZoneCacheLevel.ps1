@@ -12,7 +12,7 @@ function Set-CFDNSZoneCacheLevel
         $APIToken,
 
         [Parameter(mandatory = $true)]
-        [ValidateScript({$_.contains('@')})]
+        [ValidatePattern("[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?")]
         [ValidateNotNullOrEmpty()]
         [string]
         $Email,

@@ -48,14 +48,11 @@ function Remove-CFListIP
         $APIToken,
 
         [Parameter(mandatory = $true)]
-        [ValidateScript({$_.contains('@')})]
-        [ValidateNotNullOrEmpty()]
+        [ValidatePattern("[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?")]
         [string]
         $Email,
     
-        [Parameter(mandatory = $true,
-                valuefrompipeline = $true
-        )]
+        [Parameter(mandatory = $true, valuefrompipeline = $true)]
         [ValidateScript({$_ -match [IPAddress]$_})] 
         [string]
         $IP
