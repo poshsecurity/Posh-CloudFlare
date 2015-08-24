@@ -44,7 +44,7 @@ function Set-CFDNSZoneIPVersion
     {$APIParameters.Add('v', 0)}
     
 
-    $JSONResult = Invoke-RestMethod -Uri $CloudFlareAPIURL -Body $APIParameters -Method Post
+    $JSONResult = Invoke-RestMethod -Uri $CloudFlareAPIURL -Body $APIParameters -Method Get
     
     #if the cloud flare api has returned and is reporting an error, then throw an error up
     if ($JSONResult.result -eq 'error') 
